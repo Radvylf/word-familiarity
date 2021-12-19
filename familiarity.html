@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Word Familiarity</title>
+        
+        <meta name="description" content="Ranking the familiarity of words">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
+        
+        <style>
+            body {
+                /*width: 100vw;
+                height: 100vh;
+                
+                margin: 0;
+                box-sizing: border-box;*/
+                
+                margin: 14px;
+                
+                font-family: "Roboto", Arial, sans-serif;
+                
+                /*display: flex;
+                justify-content: center;
+                align-items: center;*/
+            }
+            
+            #container {
+                /*width: 625px;
+                height: 250px;
+                
+                padding: 38px;
+                border: 1px solid #ccc;
+                border-radius: 10px;*/
+                
+                font-size: 12px;
+                line-height: 16px;
+            }
+            
+            #container b {
+                color: #222;
+                display: block;
+                padding-bottom: 8px;
+            }
+            
+            #container div {
+            }
+            
+            #container i {
+                /*line-height: 20px;
+                font-size: 10px;
+                color: #888;
+                padding-right: 10px;
+                font-style: normal;
+                display: inline-block;*/
+                
+                padding-right: 2px;
+            }
+            
+            #container p {
+                /*line-height: 20px;
+                font-size: 16px;*/
+                margin: 0;
+                display: inline-block;
+                
+                padding-bottom: 2px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <b>Which word is more familiar to you?</b>
+            
+            <div>
+                <i>1. </i><p id="word_1"></p>
+            </div>
+            
+            <div>
+                <i>2. </i><p id="word_2"></p>
+            </div>
+        </div>
+        
+        <script>
+            (async () => {
+                var ign = Number(window.localStorage.getItem("familiarity_ign") || 1 - Math.random());
+                
+                window.localStorage.setItem("familiarity_ign", ign);
+                
+                var post = async (data = null) => {
+                    return await (await fetch("https://questwriting.org/familiar", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    })).json();
+                };
+                
+                var word_1 = document.getElementById("word_1");
+                var word_2 = document.getElementById("word_2");
+                
+                [word_1.textContent, word_2.textContent] = await post({
+                    ign: ign
+                });
+                
+                window.addEventListener("keypress", async (info) => {
+                    if ((info.key == "1" || info.key == "2") && !info.ctrlKey && !info.altKey && !info.metaKey)
+                        [word_1.textContent, word_2.textContent] = await post({
+                            ign: ign,
+                            words: [word_1.textContent, word_2.textContent],
+                            familiar: Number(info.key)
+                        });
+                });
+            })();
+        </script>
+    </body>
+</html>
